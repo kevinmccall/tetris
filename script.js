@@ -185,15 +185,18 @@ let Board = function () {
         return true;
     };
     this.addPiece = (piece, row, col) => {
+        let modifiedRows = [];
         for (let i = 0; i < piece.height; i++) {
             for (let j = 0; j < piece.width; j++) {
                 let pieceIndex = i * piece.width + j;
                 let thisIndex = (i + row) * this.boardWidth + j + col;
                 if (piece.getData()[pieceIndex] != 0) {
                     this.data[thisIndex] = piece.getData()[pieceIndex];
+                    modifiedRows.push(i + row);
                 }
             }
         }
+        return modifiedRows;
     };
     this.drawBoard = () => {
         ctx.fillStyle = "gray";
@@ -216,6 +219,34 @@ let Board = function () {
                 }
             }
         }
+    };
+    this.removeRows = (rows) => {
+        let newData = Array(this.boardWidth * this.boardHeight).fill(0);
+        let rowIndex = this.boardHeight - 1;
+        for (let i = rowIndex; i >= 0; i--) {
+            if (!rows.includes(i)) {
+                console.log("sus");
+                for (let j = 0; j < this.boardWidth; j++) {
+                    newData[rowIndex * this.boardWidth + j] = this.get(i, j);
+                }
+                rowIndex--;
+            }
+        }
+        this.data = newData;
+    };
+    this.checkRows = (rowsToCheck) => {
+        let fullRows = [];
+        rowsToCheck.forEach((i) => {
+            let full = true;
+            for (let j = 0; j < this.boardWidth; j++) {
+                if (this.get(i, j) === 0) {
+                    full = false;
+                }
+            }
+            if (full) {
+                fullRows.push(i);
+            }
+        });
     };
 };
 
@@ -387,8 +418,16 @@ function rotateClockWise() {
 function init() {
     currentPiece.col = Math.floor(board.boardWidth / 2);
     document.addEventListener("keydown", keyInput);
+    board.data = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 4, 4, 0, 6, 0, 0, 0, 1, 0, 0, 4, 4, 6, 6, 0, 0, 0, 1, 4, 4, 1, 2, 2, 6, 2, 2, 1, 1, 4, 4, 1, 2, 4, 4, 2,
+        0, 1, 1, 3, 3, 1, 2, 4, 4, 2, 7, 1, 4, 4, 3, 1, 4, 4, 1, 7, 7, 1, 4, 4, 3, 6, 4, 4, 1, 7, 4, 4, 2, 0, 6, 6, 4,
+        4, 1, 2, 4, 4, 2, 2, 2, 6, 4, 4, 1, 2, 2, 2,
+    ];
     draw();
-    interval = setInterval(gameMovePiece, dropTime);
+    // interval = setInterval(gameMovePiece, dropTime);
 }
 
 init();
