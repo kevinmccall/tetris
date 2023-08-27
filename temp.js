@@ -140,3 +140,10 @@
         1,0,0,
     ]
 ]
+
+function addPiece() {
+    let deltaRows = board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+    let fullRows = board.checkRows(deltaRows);
+    board.removeRows(fullRows);
+    resetPiece();
+}

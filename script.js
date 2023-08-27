@@ -177,7 +177,6 @@ let Board = function () {
                         col + j >= this.boardWidth ||
                         col + j < 0)
                 ) {
-                    console.log(j, this.boardWidth);
                     return false;
                 }
             }
@@ -225,7 +224,6 @@ let Board = function () {
         let rowIndex = this.boardHeight - 1;
         for (let i = rowIndex; i >= 0; i--) {
             if (!rows.includes(i)) {
-                console.log("sus");
                 for (let j = 0; j < this.boardWidth; j++) {
                     newData[rowIndex * this.boardWidth + j] = this.get(i, j);
                 }
@@ -247,6 +245,7 @@ let Board = function () {
                 fullRows.push(i);
             }
         });
+        return fullRows;
     };
 };
 
@@ -279,7 +278,7 @@ function logic(time) {
     if (time > nextTime) {
         nextTime = time + dropTime;
         if (!tryMove(0, 1)) {
-            board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+            placePiece();
             resetPiece();
         }
     }
@@ -297,7 +296,7 @@ function loop(time) {
 
 function instantDrop() {
     while (tryMove(1, 0)) {}
-    board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+    placePiece();
     resetPiece();
     draw();
 }
@@ -356,7 +355,7 @@ function keyInput(event) {
                 break;
             case "ArrowDown":
                 if (!tryMove(1, 0)) {
-                    board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+                    placePiece();
                     resetPiece();
                     draw();
                 }
@@ -394,7 +393,7 @@ function gameMovePiece() {
     }
     let moveSuccessful = tryMove(1, 0);
     if (!moveSuccessful) {
-        board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+        placePiece();
         resetPiece();
     }
 }
@@ -415,19 +414,17 @@ function rotateClockWise() {
     draw();
 }
 
+function placePiece() {
+    let modifiedRows = board.addPiece(currentPiece, currentPiece.row, currentPiece.col);
+    let fullRows = board.checkRows(modifiedRows);
+    board.removeRows(fullRows);
+}
+
 function init() {
     currentPiece.col = Math.floor(board.boardWidth / 2);
     document.addEventListener("keydown", keyInput);
-    board.data = [
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 4, 4, 0, 6, 0, 0, 0, 1, 0, 0, 4, 4, 6, 6, 0, 0, 0, 1, 4, 4, 1, 2, 2, 6, 2, 2, 1, 1, 4, 4, 1, 2, 4, 4, 2,
-        0, 1, 1, 3, 3, 1, 2, 4, 4, 2, 7, 1, 4, 4, 3, 1, 4, 4, 1, 7, 7, 1, 4, 4, 3, 6, 4, 4, 1, 7, 4, 4, 2, 0, 6, 6, 4,
-        4, 1, 2, 4, 4, 2, 2, 2, 6, 4, 4, 1, 2, 2, 2,
-    ];
     draw();
-    // interval = setInterval(gameMovePiece, dropTime);
+    interval = setInterval(gameMovePiece, dropTime);
 }
 
 init();
